@@ -1,0 +1,10 @@
+INFO Application started
+WARNING Disk usage above 75%
+ERROR Failed to load configuration
+INFO Connection restored
+WARNING High memory usage detected
+ERROR Unexpected shutdown
+INFO Service restarted
+INFO Running normally
+WARNING Delay detected
+INFO Shutting down

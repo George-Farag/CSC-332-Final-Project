@@ -1,0 +1,106 @@
+.TH LOGANALYZER 1 "November 2025" "Custom Shell Commands Project" "User Manuals"
+.SH NAME
+loganalyzer \- analyze a text log file and report useful statistics
+
+.SH SYNOPSIS
+.B loganalyzer
+.RI [ -h ]
+.RI [ -s ]
+.IR logfile
+
+.SH DESCRIPTION
+The
+.B loganalyzer
+utility reads a plain-text log file and produces a summary of its contents.
+Its main purpose is to help inspect application or system logs by counting
+the number of lines, words, and characters in the file, as well as the
+occurrence of common log severity keywords, including:
+.BR ERROR ,
+.BR WARNING ,
+and
+.BR INFO .
+
+Unlike a simple parser based on repeated read() calls,
+.B loganalyzer
+maps the entire logfile into memory using the
+.BR mmap (2)
+system call. This approach allows efficient random access to the file and
+reduces the overhead of performing multiple system calls, which is helpful
+when analyzing larger log files.
+
+.SH OPTIONS
+.TP
+.B -h
+Display a short help message describing program usage and exit.
+
+.TP
+.B -s
+Print only a one-line statistical summary instead of the full breakdown.
+This option is useful when scripting or when only final counts are needed.
+
+.SH OPERANDS
+.TP
+.I logfile
+The path to the log file to be analyzed. The file must be readable.
+If the file cannot be opened or mapped, an appropriate error message
+is printed and the program exits with a non-zero status.
+
+.SH OUTPUT
+Unless the
+.B -s
+option is used, output includes:
+.IP \(bu 2
+Number of lines in the file.
+.IP \(bu
+Number of words in the file.
+.IP \(bu
+Number of characters.
+.IP \(bu
+Count of ERROR log entries.
+.IP \(bu
+Count of WARNING log entries.
+.IP \(bu
+Count of INFO log entries.
+
+When
+.B -s
+is used, only a single summary line is printed in the following format:
+
+.RS
+Summary: L lines, W words, C chars, E ERR, W WARN, I INFO
+.RE
+
+.SH EXAMPLES
+.TP
+Analyze a log file and show full statistics:
+.RS
+.B loganalyzer tests/sample_log.txt
+.RE
+
+.TP
+Display only the summary line:
+.RS
+.B loganalyzer -s tests/sample_log.txt
+.RE
+
+.SH EXIT STATUS
+.TP
+.B 0
+The analysis completed successfully.
+.TP
+.B 1
+Invalid command-line arguments were provided.
+.TP
+.B 2
+The logfile could not be opened or memory-mapped.
+
+.SH NOTES
+This program demonstrates the use of
+.BR mmap (2)
+and related system calls as part of the Custom Linux Shell Commands project.
+The code also includes basic argument parsing using
+.BR getopt (3)
+and performs clean resource deallocation before exiting.
+
+.SH AUTHOR
+Written by Franklin Shehu for the Custom Linux Shell Commands course project for the loganalyzer command.
