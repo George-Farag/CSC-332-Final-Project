@@ -1,0 +1,118 @@
+.TH MEMVIEW 1 "November 2025" "memview 1.0" "User Commands"
+.SH NAME
+memview \- display a file's memory mapping, hex dump, and shared memory status
+
+.SH SYNOPSIS
+.B memview
+.I filename
+
+.SH DESCRIPTION
+The
+.B memview
+utility displays three major types of information:
+
+.TP
+1. A hex + ASCII dump of the specified file.
+This shows the raw bytes of the file, grouped by 16 bytes per line, along with their printable character equivalents.
+
+.TP
+2. The process's virtual memory map.
+This is obtained from
+.I /proc/self/maps
+and displays details about the program's memory layout including:
+.br
+\- the executable segments
+.br
+\- the heap
+.br
+\- the stack
+.br
+\- shared libraries
+.br
+\- memory mappings created by mmap()
+
+.TP
+3. System V shared memory segments.
+This data is retrieved using the system command
+.B ipcs -m.
+It shows all currently allocated shared memory blocks on the system and lists:
+.br
+\- keys
+.br
+\- segment IDs
+.br
+\- owners
+.br
+\- permissions
+.br
+\- size
+.br
+\- attached processes
+
+.PP
+The file is mapped into memory using
+.BR mmap (2)
+in read-only mode. The resulting address space is scanned and dumped in hexadecimal format.
+
+If the file cannot be opened, is empty, or cannot be memory-mapped, the program prints an error message and exits.
+
+.SH ARGUMENTS
+.TP
+.I filename
+The path to the file to view. Must be readable and non-empty.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Usage error, missing file argument, unreadable file, or mmap failure.
+
+.SH FILES
+.TP
+.I /proc/self/maps
+Virtual memory layout of the running process.
+.TP
+.I /dev/urandom
+Frequently used as input for random binary test files.
+.TP
+.I /dev/null
+Special device that appears empty and triggers an "empty file" error.
+
+.SH EXAMPLES
+.TP
+View a normal text file:
+.nf
+    memview notes.txt
+.fi
+
+.TP
+View a symbolic link:
+.nf
+    memview link_to_file
+.fi
+
+.TP
+View a large random binary:
+.nf
+    dd if=/dev/urandom of=data.bin bs=1024 count=32
+    memview data.bin
+.fi
+
+.TP
+Check shared memory status:
+.nf
+    ipcmk -M 4096
+    memview test.txt
+.fi
+
+.SH SEE ALSO
+.BR mmap (2),
+.BR open (2),
+.BR fstat (2),
+.BR ipcs (1),
+.BR proc (5)
+
+.SH AUTHOR
+Written by George Farag
