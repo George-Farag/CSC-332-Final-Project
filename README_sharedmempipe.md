@@ -66,3 +66,19 @@ Child: read from shared memory: "Hello from parent using shared memory!"
 - `fork()` - Split into parent and child
 - `write()` - Ring the doorbell
 - `read()` - Wait for doorbell to ring
+
+## Error Handling Tests
+
+Run `test_sharedmempipe_errors.cpp` to verify error handling works.
+
+**To compile and run:**
+```bash
+cd /mnt/c/Users/elasm/CSC-332-Final-Project
+g++ -std=c++11 test_sharedmempipe_errors.cpp -o test_errors -lrt
+./test_errors
+```
+
+**Tests:**
+- Invalid shared memory names are rejected
+- Closed pipes are detected
+- All system calls check for errors
