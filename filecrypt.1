@@ -1,0 +1,126 @@
+.TH FILECRYPT 1 "November 2025" "CSC 332" "User Manuals"
+
+.SH NAME
+filecrypt \- encrypt or decrypt a file using an XOR-based byte transformation
+
+.SH SYNOPSIS
+.B filecrypt
+.RB [ -e | -d ]
+.B -i
+.I infile
+.B -o
+.I outfile
+.RB [ -p
+.IR password ]
+.br
+.B filecrypt -h
+
+.SH DESCRIPTION
+The
+.B filecrypt
+program applies a simple XOR operation to every byte of an input file and writes
+the transformed data to an output file. The same function is used for both
+encryption and decryption, since XOR operations naturally reverse themselves.
+
+This program was created to practice low-level file handling, interactive
+password input, terminal configuration, and signal-driven cleanup. It uses
+direct system calls such as
+.BR open (2),
+.BR read (2),
+and
+.BR write (2)
+to process data in fixed-size chunks.
+
+If the password is not provided on the command line, the program prompts for it
+with terminal echo temporarily disabled. Memory holding the password is cleared
+after use through a manual wipe routine.
+
+If the program is interrupted (e.g., Ctrl+C), it stops immediately, clears its
+buffer, closes files, and deletes any partially written output to avoid leaving
+incomplete data behind.
+
+.SH OPTIONS
+.TP
+.B -e
+Encrypt mode (default).
+
+.TP
+.B -d
+Decrypt mode.
+
+.TP
+.BI -i " infile"
+The file to read from. This option is required.
+
+.TP
+.BI -o " outfile"
+The file to write to. This option is required.
+The file is created with mode 0600.
+
+.TP
+.BI -p " password"
+Password to use for the XOR operation.  
+If omitted, the program will prompt interactively with echo disabled.
+
+.TP
+.B -h
+Show help and exit.
+
+.SH EXAMPLES
+.TP
+Encrypt a file and enter the password interactively:
+.RS
+.B filecrypt -e -i notes.txt -o notes.enc
+.RE
+
+.TP
+Decrypt and provide password directly:
+.RS
+.B filecrypt -d -i notes.enc -o notes.txt -p key123
+.RE
+
+.TP
+Demonstrate XOR symmetry:
+.RS
+.B filecrypt -e -i a.txt -o temp.bin -p key
+.br
+.B filecrypt -e -i temp.bin -o a.txt -p key
+.RE
+
+.SH SIGNAL HANDLING
+.TP
+.B SIGINT
+When interrupted, the program:
+.IP \(bu 2
+stops processing immediately  
+.IP \(bu
+clears internal buffers  
+.IP \(bu
+closes both files  
+.IP \(bu
+removes the partially written output file  
+
+.SH IMPLEMENTATION NOTES 
+.IP \(bu 2
+The password is wiped from memory after use with a manual clearing loop.  
+.IP \(bu
+Interactive password input uses
+.BR tcgetattr (3)
+and
+.BR tcsetattr (3)
+to disable and restore echo.  
+.IP \(bu
+Command-line parsing uses
+.BR getopt (3).  
+
+.SH EXIT STATUS
+.TP
+.B 0
+Completed successfully.
+
+.TP
+.B 1
+An error occurred (invalid arguments, I/O error, or interruption).
+
+.SH AUTHOR
+Made by Kirill Kheyfets for CSC 332 Group Project.
