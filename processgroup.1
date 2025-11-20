@@ -1,0 +1,106 @@
+.TH PROCESSGROUP 1 "2025" "CSC 332 Project" "User Commands"
+.SH NAME
+processgroup \- spawns, manages, and safely terminates a group of child processes
+.SH SYNOPSIS
+.B processgroup
+[\-n NUM] 
+[\-q] 
+[\-r] 
+[\-\-test]
+
+.SH DESCRIPTION
+The .B processgroup command creates a group of child processes, 
+monitors them, and safely terminates them upon receiving a SIGINT (Ctrl+C). 
+It is designed to demonstrate process creation, signal handling, and process cleanup using:
+.BR fork (2),
+.BR kill (2),
+and
+.BR waitpid (2).
+
+By default, the program spawns 5 child processes. The parent remains active until
+SIGINT is received, at which point all child processes are terminated and reaped
+to prevent the creation of zombie processes.
+
+.SH OPTIONS
+.TP
+.B \-n NUM
+Specifies the number of child processes to create.
+NUM must be between 1 and 20.
+
+.TP
+.B \-q
+Quiet mode.  
+Child processes run silently without printing "Running..." messages.
+
+.TP
+.B \-r
+Random mode.  
+Each child process sleeps for a random interval between 1 and 3 seconds before
+printing its "Running..." message (unless quiet mode is enabled).
+
+.TP
+.B \-\-test
+Displays a suite of built-in test cases showing expected program behavior.
+No child processes are spawned in this mode.
+
+.SH SIGNALS
+.TP
+.B SIGINT
+When SIGINT (Ctrl+C) is received, the program stops its main loop and begins a
+graceful shutdown sequence:
+.IP \(bu 2
+All child processes are sent SIGTERM.
+.IP \(bu 2
+The parent waits for each child using
+.BR waitpid (2).
+.IP \(bu 2
+No zombie processes remain.
+
+.SH EXIT STATUS
+The program returns:
+.TP
+.B 0
+Normal termination.
+.TP
+.B 1
+Invalid usage or argument error.
+
+.SH EXAMPLES
+.TP
+Create 5 children (default):
+.IP
+.nf
+processgroup
+.fi
+
+.TP
+Create 10 children:
+.IP
+.nf
+processgroup -n 10
+.fi
+
+.TP
+Run quietly:
+.IP
+.nf
+processgroup -q
+.fi
+
+.TP
+Spawn 6 children with random timing:
+.IP
+.nf
+processgroup -n 6 -r
+.fi
+
+.TP
+Run test suite:
+.IP
+.nf
+processgroup --test
+.fi
+
+.SH AUTHOR
+Written by Michael Ramos for the CSC 332 group project, focused on "processgroup"
+
